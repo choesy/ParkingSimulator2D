@@ -36,7 +36,18 @@ class Matrix {
       return new Matrix(a.rows, a.cols)
         .map((_, i, j) => a.data[i][j] - b.data[i][j]);
     }
+
+    static adding(a, b) {
+      if (a.rows !== b.rows || a.cols !== b.cols) {
+        console.log('Columns and Rows of A must match Columns and Rows of B.');
+        return;
+      }
   
+      // Return a new Matrix a-b
+      return new Matrix(a.rows, a.cols)
+        .map((_, i, j) => a.data[i][j] + b.data[i][j]);
+    }
+
     toArray() {
       let arr = [];
       for (let i = 0; i < this.rows; i++) {

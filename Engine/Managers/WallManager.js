@@ -12,14 +12,14 @@ class WallManager{
     }
 
     draw() {
-        for(let wall of this.wallsArray){
+        for(var wall of this.wallsArray){
             wall.draw()
         }
     }
 
     update(){
     
-        for(let wall of this.wallsArray){
+        for(var wall of this.wallsArray){
             wall.update()
         }
     }

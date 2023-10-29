@@ -7,20 +7,21 @@ class Collider {
     static Collision_Projection(a, b){
         // make projection axises from poligon with less edges
         // zaenx uzamem unijo, morm se sprobat vec nacinov
-        let edges = [...new Set([...a.edges, ...b.edges])]; //a.edges.length > b.edges.length ? b.edges : a.edges;
+        var edges = [...new Set([...a.edges, ...b.edges])]; //a.edges.length > b.edges.length ? b.edges : a.edges;
         
-        let max = -Infinity;
-        for(let i = 0; i < edges.length; i++){
+        var max = -Infinity;
+        var edgeLen =edges.length;
+        for(var i = 0; i < edgeLen; i++){
             // take axis perpendicular to the current edge
-            let axis = new Vector2D(-edges[i].Y, edges[i].X);
+            var axis = new Vector2D(-edges[i].Y, edges[i].X);
             axis.normalize();
 
             // project points from both poligons on axis 
-            let projectionA = Collider.pointProjection(a.points, axis);
-            let projectionB = Collider.pointProjection(b.points, axis);
+            var projectionA = Collider.pointProjection(a.points, axis);
+            var projectionB = Collider.pointProjection(b.points, axis);
 
             // check if there is no intersaction
-            let intersaction = Collider.checkIntersaction(projectionA, projectionB);
+            var intersaction = Collider.checkIntersaction(projectionA, projectionB);
             if(intersaction >= 0){
                 if(max < intersaction)
                     max = intersaction;
@@ -33,11 +34,12 @@ class Collider {
     }
 
     static pointProjection(points, axis){
-        let min = Infinity;
-        let max = -min;
+        var min = Infinity;
+        var max = -min;
 
         var product;
-        for(let i = 0; i < points.length; i++){
+        var pointsLen=points.length;
+        for(var i = 0; i < pointsLen; i++){
             product = math.dot(points[i].Array, axis.Array);
 
             if(product < min)
@@ -56,9 +58,23 @@ class Collider {
         return b.max - a.min
     }
 
-    static Collision_Circle_vs_Rect(a, b){
+    static Collision_Circle_vs_Rect(circle, rect){
 
-        return false;
+    var distx = Math.abs(circle.x - rect.position.X);
+    var disty = Math.abs(circle.y - rect.position.Y);
+
+    if (distx > (rect.size.X/2 + circle.radius)) { return false; }
+    if (disty > (rect.size.Y/2 + circle.radius)) { return false; }
+
+    if (distx <= (rect.size.X/2)) { return true; } 
+    if (disty <= (rect.size.Y/2)) { return true; }
+
+    var hypot = (distx - rect.size.X/2)*(distx- rect.size.X/2) +
+                         (disty - rect.size.Y/2)*(disty - rect.size.Y/2);
+
+//console.log(hypot <= (circle.radius*circle.radius))
+    return (hypot <= (circle.radius*circle.radius));
+   
     }
 
 

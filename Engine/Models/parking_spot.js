@@ -1,7 +1,7 @@
 class Parkingspot extends CollidableSprite {
 
     constructor(gameObject,position, qadrant, occupied){
-        size=new Vector2D(100, 50)
+        var size=new Vector2D(100, 50)
         super(position, 'rect', size, (qadrant* 90));
         this.occupied = occupied;
         this.objName="parkingspot"

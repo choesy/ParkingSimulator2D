@@ -60,7 +60,7 @@ class Vector2D{
     }
 
     normalize(){
-        let m = Math.sqrt(Math.pow(this.X, 2) + Math.pow(this.Y, 2))
+        var m = Math.sqrt(Math.pow(this.X, 2) + Math.pow(this.Y, 2))
         if(m > 0)
             this.devide(m);
     }

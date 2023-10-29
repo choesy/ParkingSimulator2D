@@ -34,7 +34,8 @@ class CollidableSprite{
 
         let matrix = Matrix.getRotationMatrix(this.angle - 360);
         let center = new Vector2D(position.X + size.X / 2, position.Y + size.Y / 2);
-        for(let i = 0; i < this.points.length; i++){
+        var pointsLen=this.points.length;
+        for(let i = 0; i < pointsLen; i++){
             this.points[i].subtract(center);
             let vector = Vector2D.transpose(this.points[i]);
             let vector_d = math.multiply(matrix, vector);
@@ -45,7 +46,8 @@ class CollidableSprite{
 
     setEdges(){
         this.edges = [];
-        for(let i = 0; i < this.points.length-1; i++){
+        var pointsLen=this.points.length;
+        for(let i = 0; i < pointsLen-1; i++){
             this.edges[i]= Vector2D.subtract(this.points[i+1], this.points[i]);
         }
         this.edges[this.points.length-1] = Vector2D.subtract(this.points[0], this.points[this.points.length-1]);

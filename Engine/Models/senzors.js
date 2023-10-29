@@ -1,16 +1,18 @@
 class Senzor extends CollidableSprite {
 
-    constructor(color, game, position, senzor_length, angle, offset){
+    constructor(sensorManager,color, game, position, senzor_length, angle, offset){
         super(position, 'line', senzor_length, angle, offset);
 
         this.color = color
-
+        this.collidedObjName="none"
         this.gameObject = game;
-        this.intersaction = 0;
+        this.intersactionWall = 0;
+        this.intersactionParking = 0;
+        this.sensorManager=sensorManager;
     }
 
     setCollider(){
-        this.setPoints();
+        
         this.setEdges();
     }
 
@@ -20,12 +22,12 @@ class Senzor extends CollidableSprite {
             Vector2D.add(new Vector2D(this.position.X, this.position.Y), this.offset)//this.second_point,
         ];
 
-        let matrix = Matrix.getRotationMatrix(this.angle - 360);
-        let center = new Vector2D(this.position.X, this.position.Y);
-        for(let i = 0; i < this.points.length; i++){
+        var matrix = Matrix.getRotationMatrix(this.angle - 360);
+        var center = new Vector2D(this.position.X, this.position.Y);
+        for(var i = 0; i < this.points.length; i++){
             this.points[i].subtract(center);
-            let vector = Vector2D.transpose(this.points[i]);
-            let vector_d = math.multiply(matrix, vector);
+            var vector = Vector2D.transpose(this.points[i]);
+            var vector_d = math.multiply(matrix, vector);
             this.points[i] = new Vector2D(vector_d[0][0], vector_d[1][0]);
             this.points[i].add(center);
         }
@@ -39,6 +41,7 @@ class Senzor extends CollidableSprite {
     update(position, angle){
         this.position = position;
         this.angle = angle;
+        this.setPoints();
     }
 
     draw(){
@@ -47,24 +50,34 @@ class Senzor extends CollidableSprite {
     }
 
     checkCollision(){
+        this.collidedObjName="none"
         this.collided = false;
-        this.intersaction = 0;
-
-        super.setCollider()
+        this.intersactionWall = 0;
+        this.intersactionParking = 0;
+        this.color="green"
+       super.setCollider()
 
         this.checkCollisionWithOne(this.gameObject.WallManager.wallsArray); //za zide
-        //this.checkCollisionWithOne(this.gameObject.ParkingspotManager.parkingspotsArray); //za parking spote
+        this.checkCollisionWithOne(this.gameObject.ParkingspotManager.parkingspotsArray); //za parking spote
     }
 
     checkCollisionWithOne(colliders){
-        colliders.map( (collider) => this.collision(collider));
+        var len=colliders.length;
+        for(var i=0; i<len;i++){
+        	colliders[i].collision(this)
+
+        }
     }
 
     collisionEvent(withObj, intersaction){
         this.collided = true;
-
-        if(withObj.objName == "wall"){
-            this.intersaction = intersaction;
+        this.collidedObjName=withObj.objName
+        if(withObj.objName=="parkingspot"){
+            this.intersactionParking = 1;//intersaction
+            this.color = 'blue';
+        }
+        else  if(withObj.objName == "wall"){
+            this.intersactionWall = 1;//intersaction
             this.color = 'red';
         }
             
@@ -79,34 +92,51 @@ class Senzors {
         this.position = position;
         this.senzor_length = senzor_length;
         this.angle = angle;
-
         this.array = [
-            new Senzor('green', game, position, senzor_length, angle, new Vector2D(senzor_length, 0)),
-            new Senzor('green', game, position, senzor_length/2, angle, new Vector2D(-senzor_length/2, 0)),
-            new Senzor('green', game, position, senzor_length/2, angle, new Vector2D(senzor_length/2, senzor_length/2)),
-            new Senzor('green', game, position, senzor_length/2, angle, new Vector2D(senzor_length/2, -senzor_length/2)),
-            new Senzor('green', game, position, senzor_length/2, angle, new Vector2D(-senzor_length/2, senzor_length/2)),
-            new Senzor('green', game, position, senzor_length/2, angle, new Vector2D(-senzor_length/2, -senzor_length/2)),
-            new Senzor('green', game, position, senzor_length/2, angle, new Vector2D(0, senzor_length/2)),
-            new Senzor('green', game, position, senzor_length/2, angle, new Vector2D(0, -senzor_length/2)),
+            new Senzor(this,'green', game, position, senzor_length, angle, new Vector2D(senzor_length, 0)),
+            new Senzor(this,'green', game, position, senzor_length/2, angle, new Vector2D(-senzor_length/2, 0)),
+            new Senzor(this,'green', game, position, senzor_length/2, angle, new Vector2D(senzor_length/2, senzor_length/2)),
+            new Senzor(this,'green', game, position, senzor_length/2, angle, new Vector2D(senzor_length/2, -senzor_length/2)),
+            new Senzor(this,'green', game, position, senzor_length/2, angle, new Vector2D(-senzor_length/2, senzor_length/2)),
+            new Senzor(this,'green', game, position, senzor_length/2, angle, new Vector2D(-senzor_length/2, -senzor_length/2)),
+            new Senzor(this,'green', game, position, senzor_length/2, angle, new Vector2D(0, senzor_length/2)),
+            new Senzor(this,'green', game, position, senzor_length/2, angle, new Vector2D(0, -senzor_length/2)),
         ];
 
-        this.inter_array = [0, 0, 0, 0, 0, 0, 0, 0];
+        this.inter_array = [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0], [0,0], [0,0]];
     }
 
     update(position, angle){
         // update all senzors
-        this.array.map((senzor) => senzor.update(position, angle));
+        var len=this.array.length;
+        for(var i=0;i<len;i++){
+        	this.array[i].update(position,angle)
+        }
     }
 
     draw(){
-        // draw all senzors
-        this.array.map((senzor) => senzor.draw());
+             var len=this.array.length;
+        for(var i=0;i<len;i++){
+        	this.array[i].draw()
+        }
     }
 
     checkCollision(){
-        this.array.map((senzor) => senzor.checkCollision());
-        this.array.map((senzor, i) => this.inter_array[i] = senzor.intersaction / 1000);
+        var len=this.array.length;
+        for(var i=0;i<len;i++){
+        	this.array[i].checkCollision()
+        }
+        this.array.map((senzor, i) => {this.inter_array[i][0] = senzor.intersactionWall;this.inter_array[i][1]=senzor.intersactionParking});
+       // this.array.map((senzor, i) => {this.inter_array[i][0] = senzor.intersactionWall / 1000;this.inter_array[i][1]=senzor.intersactionParking/1000});
+      //  console.log(this.inter_array)
+    }
+    getSum(){
+        var sum=0;
+        for(var i of this.inter_array){
+            sum+=i[0]+i[1]
+        }
+        return sum;
+
     }
 
 }
